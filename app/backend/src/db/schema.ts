@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import {pgTable, serial, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check} from 'drizzle-orm/pg-core'
+import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check} from 'drizzle-orm/pg-core'
 
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
