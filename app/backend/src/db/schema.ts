@@ -16,7 +16,7 @@ export const movieAgeRatings = pgEnum("age_ratings",["0+","4+","8+","10+", "12+"
 export const movieStatuses = pgEnum("movie_statuses", ["COMING_SOON", "NOW_SHOWING", "ARCHIVED"])
 
 export const movies = pgTable("movies", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     title: varchar("title", {length: 256}).notNull(),
     description: text("description").notNull().default(""),
     durationMinutes: integer("duration_minutes"),
@@ -29,7 +29,7 @@ export const movies = pgTable("movies", {
 
 
 export const genres = pgTable("genres", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar("name", {length: 256}).notNull(),
     slug: varchar("slug", {length: 256}).notNull().unique()
 });
@@ -48,7 +48,7 @@ export const movieGenres = pgTable("movie_genres", {
 export const hallTypes = pgEnum("hall_types", ["STANDARD", "IMAX", "VIP", "4DX"])
 
 export const halls = pgTable("halls", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar("name", {length: 256}).notNull().unique(),
     type: hallTypes("type").notNull().default("STANDARD")
 })
@@ -56,7 +56,7 @@ export const halls = pgTable("halls", {
 export const seatTypes = pgEnum("seat_types", ["STANDARD", "VIP", "WHEELCHAIR", "COUPLE"])
 
 export const seats = pgTable("seats", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     hallId: integer("hall_id").notNull().references(() => halls.id, {onDelete: 'cascade'}),
     rowNumber: integer("row_number").notNull(),
     seatNumber: integer("seat_number").notNull(),
@@ -74,7 +74,7 @@ export const showingFormats = pgEnum("showing_formats", ["2D", "3D", "IMAX"])
 export const showingStatuses = pgEnum("showing_statuses", ["SCHEDULED", "FINISHED", "CANCELLED"])
 
 export const showings = pgTable("showings", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     movieId: integer("movie_id").notNull().references(() => movies.id, {onDelete: 'restrict'}),
     hallId: integer("hall_id").notNull().references(() => halls.id, {onDelete: 'restrict'}),
     startTime: timestamp("start_time", {withTimezone: true}).notNull(),
@@ -94,7 +94,7 @@ export const showings = pgTable("showings", {
 export const bookingStatuses = pgEnum("booking_statuses", ["PENDING", "PAID", "CANCELLED", "EXPIRED"])
 
 export const bookings = pgTable("bookings", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id").notNull().references(() => users.id, {onDelete: 'restrict'}),
     status: bookingStatuses("status").notNull().default("PENDING"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
@@ -114,7 +114,7 @@ export const ticketTypes = pgEnum("ticket_types", ["CHILD", "ADULT", "STUDENT", 
 export const ticketStatuses = pgEnum("ticket_statuses", ["RESERVED", "PAID", "CANCELLED", "USED"])
 
 export const tickets = pgTable("tickets", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     bookingId: integer("booking_id").notNull().references(() => bookings.id, {onDelete: 'cascade'}),
     showingId: integer("showing_id").notNull().references(() => showings.id, {onDelete: 'restrict'}),
     seatId: integer("seat_id").notNull().references(() => seats.id, {onDelete: 'restrict'}),
@@ -140,7 +140,7 @@ export const paymentMethods = pgEnum("payment_methods", ["CARD", "CASH", "ONLINE
 export const paymentStatuses = pgEnum("payment_statuses", ["PENDING", "SUCCESS", "FAILED", "REFUNDED"]) 
 
 export const payments = pgTable("payments", {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     bookingId: integer("booking_id").notNull().references(() => bookings.id, {onDelete: 'cascade'}),
     amount: numeric("amount", {precision: 10, scale: 2}).notNull(),
     method: paymentMethods("method").notNull(),
