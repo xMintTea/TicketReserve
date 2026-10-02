@@ -4,7 +4,7 @@ import {pgTable, serial, varchar, numeric, text, timestamp, pgEnum, integer, dat
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
 export const users = pgTable('users', {
-    id: serial('id').primaryKey(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     email: varchar("email", {length: 256}).unique().notNull(),
     passwordHash: varchar("password_hash", {length: 60}).notNull(), //bcrypt hash always 60 symbols long.
     role: userRoles("role").notNull().default("CUSTOMER"),
@@ -45,7 +45,7 @@ export const movieGenres = pgTable("movie_genres", {
 );
 
 
-export const hallTypes = pgEnum("hall_types", ["STANDARD", "IMAX", "VIP", "4DX"])
+export const hallTypes = pgEnum("hall_types", ["STANDARD", "IMAX"])
 
 export const halls = pgTable("halls", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -70,7 +70,7 @@ export const seats = pgTable("seats", {
 )
 
 
-export const showingFormats = pgEnum("showing_formats", ["2D", "3D", "IMAX"])
+export const showingFormats = pgEnum("showing_formats", ["2D", "3D"])
 export const showingStatuses = pgEnum("showing_statuses", ["SCHEDULED", "FINISHED", "CANCELLED"])
 
 export const showings = pgTable("showings", {
