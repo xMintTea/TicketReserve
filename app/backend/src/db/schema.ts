@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import {pgTable, serial, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index} from 'drizzle-orm/pg-core'
+import {pgTable, serial, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check} from 'drizzle-orm/pg-core'
 
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
@@ -84,6 +84,7 @@ export const showings = pgTable("showings", {
     status: showingStatuses("status").notNull().default("SCHEDULED")
     },
     (table) => [
+        check("showings_time_valid", sql`${table.endTime} > ${table.startTime}`),
         index("idx_showings_movie_id").on(table.movieId),
         index('idx_showings_hall_id').on(table.hallId),
         index('idx_showings_start_time').on(table.startTime)
