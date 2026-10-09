@@ -66,7 +66,8 @@ export const seats = pgTable("seats", {
     },
     (table) => [
         uniqueIndex('uniq_seat_position_in_hall')
-            .on(table.hallId, table.rowNumber,  table.seatNumber)
+            .on(table.hallId, table.rowNumber,  table.seatNumber),
+        uniqueIndex("uniq_seat_in_hall").on(table.id, table.hallId)
     ]
 )
 
@@ -88,7 +89,8 @@ export const showings = pgTable("showings", {
         check("showings_time_valid", sql`${table.endTime} > ${table.startTime}`),
         index("idx_showings_movie_id").on(table.movieId),
         index('idx_showings_hall_id').on(table.hallId),
-        index('idx_showings_start_time').on(table.startTime)
+        index('idx_showings_start_time').on(table.startTime),
+        uniqueIndex("uniq_showing_id_hall").on(table.id, table.hallId)
     ]
 )
 
