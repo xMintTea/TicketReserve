@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
-import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check} from 'drizzle-orm/pg-core'
+import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check, foreignKey} from 'drizzle-orm/pg-core'
+
 
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
@@ -118,7 +119,8 @@ export const tickets = pgTable("tickets", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     bookingId: integer("booking_id").notNull().references(() => bookings.id, {onDelete: 'cascade'}),
     showingId: integer("showing_id").notNull().references(() => showings.id, {onDelete: 'restrict'}),
-    seatId: integer("seat_id").notNull().references(() => seats.id, {onDelete: 'restrict'}),
+    seatId: integer("seat_id").notNull(),
+    hallId: integer("hall_id").notNull(),
     ticketType: ticketTypes("ticket_type").notNull().default("ADULT"),
     price: numeric("price", {precision: 10, scale: 2}).notNull(),
     status: ticketStatuses("status").notNull().default("RESERVED"),
@@ -128,6 +130,16 @@ export const tickets = pgTable("tickets", {
         .$onUpdate(() => new Date())
     },
     (table) => [
+        foreignKey({
+            columns: [table.showingId, table.hallId],
+            foreignColumns: [showings.id, showings.hallId],
+            name: "fk_tickets_showing_hall",
+        }).onDelete("restrict"),
+        foreignKey({
+            columns: [table.seatId, table.hallId],
+            foreignColumns: [seats.id, seats.hallId],
+            name: "fk_tickets_seat_hall"
+        }).onDelete("restrict"),
         index("idx_tickets_booking_id").on(table.bookingId),
         index("idx_tickets_showing_id").on(table.showingId),
         index("idx_tickets_seat_id").on(table.seatId),
