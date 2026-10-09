@@ -25,7 +25,11 @@ export const movies = pgTable("movies", {
     ageRating: movieAgeRatings("age_rating").notNull(),
     posterUrl: varchar("poster_url", {length: 512}),
     trailerUrl: varchar("trailer_url", {length: 512}),
-    status: movieStatuses("status").notNull().default("COMING_SOON")
+    status: movieStatuses("status").notNull().default("COMING_SOON"),
+    updatedAt: timestamp("updated_at", {withTimezone: true})
+        .notNull()
+        .defaultNow()
+        .$onUpdate(() => new Date())
 })
 
 
