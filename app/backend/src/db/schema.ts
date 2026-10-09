@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check, foreignKey} from 'drizzle-orm/pg-core'
+import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check, foreignKey, unique} from 'drizzle-orm/pg-core'
 
 
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
@@ -14,7 +14,7 @@ export const users = pgTable('users', {
         uniqueIndex('uniq_users_email_lower')
             .on(sql`lower(${table.email})`)
     ]);
-
+    
 
 export const movieAgeRatings = pgEnum("age_ratings",["0+","4+","8+","10+", "12+", "14+", "16+", "18+"])
 export const movieStatuses = pgEnum("movie_statuses", ["COMING_SOON", "NOW_SHOWING", "ARCHIVED"])
@@ -74,7 +74,7 @@ export const seats = pgTable("seats", {
     (table) => [
         uniqueIndex('uniq_seat_position_in_hall')
             .on(table.hallId, table.rowNumber,  table.seatNumber),
-        uniqueIndex("uniq_seat_in_hall").on(table.id, table.hallId)
+        unique("uniq_seat_in_hall").on(table.id, table.hallId)
     ]
 )
 
@@ -97,7 +97,7 @@ export const showings = pgTable("showings", {
         index("idx_showings_movie_id").on(table.movieId),
         index('idx_showings_hall_id').on(table.hallId),
         index('idx_showings_start_time').on(table.startTime),
-        uniqueIndex("uniq_showing_id_hall").on(table.id, table.hallId)
+        unique("uniq_showing_id_hall").on(table.id, table.hallId)
     ]
 )
 
