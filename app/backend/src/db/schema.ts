@@ -6,11 +6,14 @@ export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
 export const users = pgTable('users', {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    email: varchar("email", {length: 256}).unique().notNull(),
+    email: varchar("email", {length: 256}).notNull(),
     passwordHash: varchar("password_hash", {length: 60}).notNull(), //bcrypt hash always 60 symbols long.
     role: userRoles("role").notNull().default("CUSTOMER"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow()
-});
+    }, (table) => [
+        uniqueIndex('uniq_users_email_lower')
+            .on(sql`lower(${table.email})`)
+    ]);
 
 
 export const movieAgeRatings = pgEnum("age_ratings",["0+","4+","8+","10+", "12+", "14+", "16+", "18+"])
