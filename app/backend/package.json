@@ -4,12 +4,17 @@
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@hono/node-server": "^2.1.4",
+    "@hono/trpc-server": "^0.4.2",
     "@hono/zod-validator": "^0.9.1",
+    "@trpc/server": "^11.19.0",
     "drizzle-orm": "^0.45.3",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.13.9",
-    "pg": "^8.23.0",
+    "pg": "^8.23.1",
     "postgres": "^3.4.9",
+    "superjson": "^2.2.6",
     "zod": "^4.6.5"
   },
   "devDependencies": {
