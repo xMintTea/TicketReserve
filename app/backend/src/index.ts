@@ -1,10 +1,10 @@
+import 'dotenv/config';
 import { Hono } from 'hono'
-import { drizzle } from 'drizzle-orm/node-postgres'
 import { trpcServer } from '@hono/trpc-server';
 import { cors } from 'hono/cors'
 import {createTRPCContext} from './trpc/trpc'
 import {appRouter} from "./trpc/router"
-import 'dotenv/config';
+import { auth } from './lib/auth';
 
 
 const app = new Hono()
@@ -19,6 +19,8 @@ app.use("*", cors({
     credentials: true
 }))
 
+
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw))
 
 app.use(
     '/trpc/*',
