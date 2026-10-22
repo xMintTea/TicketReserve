@@ -5,16 +5,22 @@ import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boole
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
 
 export const users = pgTable('users', {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    id: text("id").primaryKey(),
     email: varchar("email", {length: 256}).notNull(),
-    passwordHash: varchar("password_hash", {length: 60}).notNull(), //bcrypt hash always 60 symbols long.
     role: userRoles("role").notNull().default("CUSTOMER"),
-    createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow()
+    name: text("name").notNull(),
+    emailVerified: boolean("email_verified").default(false).notNull(),
+    image: text("image"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
     }, (table) => [
         uniqueIndex('uniq_users_email_lower')
             .on(sql`lower(${table.email})`)
     ]);
-    
+
 
 export const movieAgeRatings = pgEnum("age_ratings",["0+","4+","8+","10+", "12+", "14+", "16+", "18+"])
 export const movieStatuses = pgEnum("movie_statuses", ["COMING_SOON", "NOW_SHOWING", "ARCHIVED"])
@@ -106,7 +112,7 @@ export const bookingStatuses = pgEnum("booking_statuses", ["PENDING", "PAID", "C
 
 export const bookings = pgTable("bookings", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer("user_id").notNull().references(() => users.id, {onDelete: 'restrict'}),
+    userId: text("user_id").notNull().references(() => users.id, {onDelete: 'restrict'}),
     status: bookingStatuses("status").notNull().default("PENDING"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     expiresAt: timestamp("expires_at", {withTimezone: true}).notNull(),
@@ -176,9 +182,64 @@ export const payments = pgTable("payments", {
 )
 
 
-export const usersRelations = relations(users, ({ many }) => ({
-    bookings: many(bookings),
-}))
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("sessions_userId_idx").on(table.userId)],
+);
+
+export const accounts = pgTable(
+    "accounts", {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+    },
+    (table) => [index("accounts_userId_idx").on(table.userId)],
+);
+
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("verifications_identifier_idx").on(table.identifier)],
+);
 
 
 export const moviesRelations = relations(movies, ({ many }) => ({
@@ -262,3 +323,24 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
         references: [bookings.id]
     })
 }))
+
+
+export const usersRelations = relations(users, ({ many }) => ({
+    sessions: many(sessions),
+    accounts: many(accounts),
+    bookings: many(bookings),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
