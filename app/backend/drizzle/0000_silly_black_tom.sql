@@ -10,6 +10,22 @@ CREATE TYPE "public"."showing_statuses" AS ENUM('SCHEDULED', 'FINISHED', 'CANCEL
 CREATE TYPE "public"."ticket_statuses" AS ENUM('RESERVED', 'PAID', 'CANCELLED', 'USED');--> statement-breakpoint
 CREATE TYPE "public"."ticket_types" AS ENUM('CHILD', 'ADULT', 'STUDENT', 'VIP');--> statement-breakpoint
 CREATE TYPE "public"."user_roles" AS ENUM('CUSTOMER', 'CASHIER', 'ADMIN');--> statement-breakpoint
+CREATE TABLE "accounts" (
+	"id" text PRIMARY KEY NOT NULL,
+	"account_id" text NOT NULL,
+	"provider_id" text NOT NULL,
+	"user_id" integer NOT NULL,
+	"access_token" text,
+	"refresh_token" text,
+	"id_token" text,
+	"access_token_expires_at" timestamp,
+	"refresh_token_expires_at" timestamp,
+	"scope" text,
+	"password" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "bookings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "bookings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"user_id" integer NOT NULL,
@@ -73,6 +89,18 @@ CREATE TABLE "seats" (
 	CONSTRAINT "uniq_seat_in_hall" UNIQUE("id","hall_id")
 );
 --> statement-breakpoint
+CREATE TABLE "sessions" (
+	"id" text PRIMARY KEY NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"token" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp NOT NULL,
+	"ip_address" text,
+	"user_agent" text,
+	"user_id" integer NOT NULL,
+	CONSTRAINT "sessions_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
 CREATE TABLE "showings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "showings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"movie_id" integer NOT NULL,
@@ -101,25 +129,41 @@ CREATE TABLE "tickets" (
 CREATE TABLE "users" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "users_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"email" varchar(256) NOT NULL,
-	"password_hash" varchar(60) NOT NULL,
 	"role" "user_roles" DEFAULT 'CUSTOMER' NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"name" text NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "verifications" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bookings" ADD CONSTRAINT "bookings_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "movie_genres" ADD CONSTRAINT "movie_genres_movie_id_movies_id_fk" FOREIGN KEY ("movie_id") REFERENCES "public"."movies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "movie_genres" ADD CONSTRAINT "movie_genres_genre_id_genres_id_fk" FOREIGN KEY ("genre_id") REFERENCES "public"."genres"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payments" ADD CONSTRAINT "payments_booking_id_bookings_id_fk" FOREIGN KEY ("booking_id") REFERENCES "public"."bookings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "seats" ADD CONSTRAINT "seats_hall_id_halls_id_fk" FOREIGN KEY ("hall_id") REFERENCES "public"."halls"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "showings" ADD CONSTRAINT "showings_movie_id_movies_id_fk" FOREIGN KEY ("movie_id") REFERENCES "public"."movies"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "showings" ADD CONSTRAINT "showings_hall_id_halls_id_fk" FOREIGN KEY ("hall_id") REFERENCES "public"."halls"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_booking_id_bookings_id_fk" FOREIGN KEY ("booking_id") REFERENCES "public"."bookings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_showing_id_showings_id_fk" FOREIGN KEY ("showing_id") REFERENCES "public"."showings"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tickets" ADD CONSTRAINT "fk_tickets_showing_hall" FOREIGN KEY ("showing_id","hall_id") REFERENCES "public"."showings"("id","hall_id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tickets" ADD CONSTRAINT "fk_tickets_seat_hall" FOREIGN KEY ("seat_id","hall_id") REFERENCES "public"."seats"("id","hall_id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "accounts_userId_idx" ON "accounts" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_booking_user_id" ON "bookings" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_payment_booking_id" ON "payments" USING btree ("booking_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "uniq_seat_position_in_hall" ON "seats" USING btree ("hall_id","row_number","seat_number");--> statement-breakpoint
+CREATE INDEX "sessions_userId_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_showings_movie_id" ON "showings" USING btree ("movie_id");--> statement-breakpoint
 CREATE INDEX "idx_showings_hall_id" ON "showings" USING btree ("hall_id");--> statement-breakpoint
 CREATE INDEX "idx_showings_start_time" ON "showings" USING btree ("start_time");--> statement-breakpoint
@@ -127,4 +171,5 @@ CREATE INDEX "idx_tickets_booking_id" ON "tickets" USING btree ("booking_id");--
 CREATE INDEX "idx_tickets_showing_id" ON "tickets" USING btree ("showing_id");--> statement-breakpoint
 CREATE INDEX "idx_tickets_seat_id" ON "tickets" USING btree ("seat_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "uniq_active_seat_per_showing" ON "tickets" USING btree ("showing_id","seat_id") WHERE "tickets"."status" != 'CANCELLED';--> statement-breakpoint
-CREATE UNIQUE INDEX "uniq_users_email_lower" ON "users" USING btree (lower("email"));
+CREATE UNIQUE INDEX "uniq_users_email_lower" ON "users" USING btree (lower("email"));--> statement-breakpoint
+CREATE INDEX "verifications_identifier_idx" ON "verifications" USING btree ("identifier");
