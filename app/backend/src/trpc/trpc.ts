@@ -1,5 +1,5 @@
 import { initTRPC } from "@trpc/server";
-import  { db } from '../index';
+import  { db } from "../db/index"
 import superjson from 'superjson';
 
 export const createTRPCContext = () => {
