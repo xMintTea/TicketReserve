@@ -8,7 +8,6 @@ import 'dotenv/config';
 
 
 const app = new Hono()
-export const db = drizzle(process.env.DATABASE_URL!);
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
