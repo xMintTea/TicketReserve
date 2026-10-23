@@ -15,6 +15,13 @@
       "when": 1792676309753,
       "tag": "0001_lazy_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792766005532,
+      "tag": "0002_lush_shen",
+      "breakpoints": true
     }
   ]
 }
