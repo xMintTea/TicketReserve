@@ -19,8 +19,8 @@ const movieFields = z.object({
 export const movieRouter = router({
     list: publicProcedure
         .input(z.object({
-            offset: z.number().optional().default(0),
-            limit: z.number().min(0).max(1000).optional().default(100)
+            offset: z.number().default(0),
+            limit: z.number().min(0).max(1000).default(100)
         }))
         .query(async ({ ctx, input}) => {
             return ctx.db
