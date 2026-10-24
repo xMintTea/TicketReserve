@@ -51,6 +51,7 @@ export const hallRouter = router({
                     .where(eq(halls.id, hallId))
                     .returning()
                 
+                if (!updated) throw new TRPCError({code: "NOT_FOUND"});
                 return updated
             } catch (e: any) {
                 if (e.code === "23505") throw new TRPCError({code: "CONFLICT", message: "Hall with this name already exists"});

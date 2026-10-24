@@ -2,6 +2,7 @@ import z from "zod";
 import { adminProcedure, publicProcedure, router } from "../trpc";
 import { movies } from "../../db/schema";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 
 const movieFields = z.object({
@@ -40,10 +41,13 @@ export const movieRouter = router({
         .input(movieFields.partial().extend({ movieId: z.number()}))
         .mutation(async ({ ctx, input}) => {
             const {movieId, ...data} = input
-            return ctx.db
+            const [updated] = await ctx.db
                 .update(movies)
                 .set(data)
                 .where(eq(movies.id, movieId))
                 .returning()
+
+            if (!updated) throw new TRPCError({code: "NOT_FOUND"});
+            return updated;
         })
 }) 
