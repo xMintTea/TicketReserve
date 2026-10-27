@@ -4,6 +4,7 @@ import { movieRouter } from "./routers/movie.router";
 import { genreRouter } from "./routers/genre.router";
 import { hallRouter } from "./routers/hall.router";
 import { seatRouter } from "./routers/seat.router";
+import { showingRouter } from "./routers/showing.router";
 
 
 export const appRouter = router({
@@ -12,6 +13,7 @@ export const appRouter = router({
     genre: genreRouter,
     hall: hallRouter,
     seat: seatRouter,
+    showing: showingRouter,
     health: publicProcedure.query(() => ({ status: 'ok' }))
 })
 
