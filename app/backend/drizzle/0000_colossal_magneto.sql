@@ -14,7 +14,7 @@ CREATE TABLE "accounts" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
@@ -28,7 +28,7 @@ CREATE TABLE "accounts" (
 --> statement-breakpoint
 CREATE TABLE "bookings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "bookings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
 	"status" "booking_statuses" DEFAULT 'PENDING' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
@@ -97,7 +97,8 @@ CREATE TABLE "sessions" (
 	"updated_at" timestamp NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
-	"user_id" integer NOT NULL,
+	"impersonated_by" text,
+	"user_id" text NOT NULL,
 	CONSTRAINT "sessions_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
@@ -127,12 +128,15 @@ CREATE TABLE "tickets" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "users_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"id" text PRIMARY KEY NOT NULL,
 	"email" varchar(256) NOT NULL,
 	"role" "user_roles" DEFAULT 'CUSTOMER' NOT NULL,
 	"name" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
+	"banned" boolean DEFAULT false,
+	"ban_reason" text,
+	"ban_expires" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

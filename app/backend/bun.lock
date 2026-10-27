@@ -12,6 +12,7 @@
         "@trpc/server": "^11.19.0",
         "bcryptjs": "^3.0.3",
         "better-auth": "^1.7.10",
+        "drizzle-exclude": "^0.1.0",
         "drizzle-orm": "^0.45.3",
         "drizzle-zod": "^0.8.3",
         "hono": "^4.13.9",
@@ -181,6 +182,8 @@
     "copy-anything": ["copy-anything@4.1.5", "", {}, "sha512-vePst2VLTSqPglW7Q98VwFpGiGpOHTyXIo81MO5VyLecA5zMbZw/P/V1vmwD1jksa2iJpn/YkDrJ3XhTfzUyhQ=="],
 
     "defu": ["defu@6.1.7", "", {}, "sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ=="],
+
+    "drizzle-exclude": ["drizzle-exclude@0.1.0", "", { "peerDependencies": { "drizzle-orm": "^0.45.2", "pg": ">=8", "postgres": ">=3" }, "optionalPeers": ["pg", "postgres"] }, "sha512-w0c1/CGLNd61v5AZhrZFWBpzecjJlyjByvjQg5DD1im0eNFWVeMOh/vT3PfeihhaXCj9uxERZnqT+MmwpEUvLg=="],
 
     "drizzle-kit": ["drizzle-kit@0.31.11", "", { "dependencies": { "@drizzle-team/brocli": "^0.10.2", "@esbuild-kit/esm-loader": "^2.5.5", "esbuild": "^0.25.4", "tsx": "^4.21.0" }, "bin": "bin.cjs" }, "sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg=="],
 

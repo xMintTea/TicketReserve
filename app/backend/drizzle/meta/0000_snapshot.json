@@ -1,5 +1,5 @@
 {
-  "id": "c5b5fa74-1a27-4f36-af44-a9e5a02a05b7",
+  "id": "cbb95c8b-8800-465b-9c72-934ddcbd171c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -28,7 +28,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -149,7 +149,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -738,9 +738,15 @@
           "primaryKey": false,
           "notNull": false
         },
+        "impersonated_by": {
+          "name": "impersonated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -1168,20 +1174,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "users_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "email": {
           "name": "email",
@@ -1213,6 +1208,25 @@
         "image": {
           "name": "image",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "banned": {
+          "name": "banned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "ban_reason": {
+          "name": "ban_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ban_expires": {
+          "name": "ban_expires",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },

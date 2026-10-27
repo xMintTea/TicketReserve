@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import {pgTable, varchar, numeric, text, timestamp, pgEnum, integer, date, boolean, uniqueIndex, primaryKey, index, check, foreignKey, unique} from 'drizzle-orm/pg-core'
+import { exclude, tstzRange } from "drizzle-exclude"
 
 
 export const userRoles = pgEnum("user_roles", ["CUSTOMER", "CASHIER", "ADMIN"])
@@ -97,6 +98,7 @@ export const showings = pgTable("showings", {
     hallId: integer("hall_id").notNull().references(() => halls.id, {onDelete: 'restrict'}),
     startTime: timestamp("start_time", {withTimezone: true}).notNull(),
     endTime: timestamp("end_time", {withTimezone: true}).notNull(),
+
     format: showingFormats("format").notNull().default("2D"),
     basePrice: numeric("base_price", {precision: 10, scale: 2}).notNull(),
     status: showingStatuses("status").notNull().default("SCHEDULED")
@@ -109,6 +111,14 @@ export const showings = pgTable("showings", {
         unique("uniq_showing_id_hall").on(table.id, table.hallId)
     ]
 )
+
+export const showingNoOverlap = exclude(showings, {
+    using: "gist",
+    with: [
+        [showings.hallId, '='],
+        [tstzRange(showings.startTime, showings.endTime), "&&"]
+    ]
+})
 
 
 export const bookingStatuses = pgEnum("booking_statuses", ["PENDING", "PAID", "CANCELLED", "EXPIRED"])
